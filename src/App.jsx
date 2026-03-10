@@ -2,33 +2,49 @@ import { useState } from 'react'
 import { FiUsers, FiDollarSign, FiTrendingUp, FiActivity } from 'react-icons/fi'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
-// Mock data - replace with real API calls
 const transactionData = [
-  { time: '8AM', mpesa: 45, airtime: 30, registration: 12 },
-  { time: '10AM', mpesa: 78, airtime: 45, registration: 18 },
-  { time: '12PM', mpesa: 95, airtime: 60, registration: 25 },
-  { time: '2PM', mpesa: 120, airtime: 75, registration: 30 },
-  { time: '4PM', mpesa: 88, airtime: 52, registration: 20 },
-  { time: '6PM', mpesa: 65, airtime: 38, registration: 15 },
+  { time: '8AM', mpesa: 45, airtime: 30, registration: 12, bills: 8 },
+  { time: '10AM', mpesa: 78, airtime: 45, registration: 18, bills: 15 },
+  { time: '12PM', mpesa: 95, airtime: 60, registration: 25, bills: 22 },
+  { time: '2PM', mpesa: 120, airtime: 75, registration: 30, bills: 28 },
+  { time: '4PM', mpesa: 88, airtime: 52, registration: 20, bills: 18 },
+  { time: '6PM', mpesa: 65, airtime: 38, registration: 15, bills: 12 },
 ]
 
 const serviceData = [
-  { name: 'M-PESA', value: 45, color: '#00A651' },
-  { name: 'Airtime', value: 25, color: '#E30613' },
-  { name: 'SIM Registration', value: 15, color: '#FFB800' },
-  { name: 'Bill Payments', value: 10, color: '#0066CC' },
-  { name: 'Others', value: 5, color: '#666666' },
+  { name: 'M-PESA', value: 491, color: '#00A651' },
+  { name: 'Airtime', value: 300, color: '#E30613' },
+  { name: 'SIM Registration', value: 120, color: '#FFB800' },
+  { name: 'Bill Payments', value: 103, color: '#0066CC' },
+  { name: 'Others', value: 45, color: '#666666' },
+]
+
+const recentTransactions = [
+  { time: '14:32', service: 'M-PESA Deposit', customer: '0722XXX456', amount: 'KSh 5,000', status: 'Success', agent: 'John Kamau' },
+  { time: '14:28', service: 'Airtime Purchase', customer: '0733XXX789', amount: 'KSh 200', status: 'Success', agent: 'John Kamau' },
+  { time: '14:25', service: 'SIM Registration', customer: '0711XXX234', amount: '-', status: 'Success', agent: 'John Kamau' },
+  { time: '14:20', service: 'M-PESA Withdrawal', customer: '0745XXX567', amount: 'KSh 3,500', status: 'Success', agent: 'John Kamau' },
+  { time: '14:15', service: 'Bill Payment - KPLC', customer: '0720XXX890', amount: 'KSh 1,200', status: 'Success', agent: 'John Kamau' },
+  { time: '14:10', service: 'M-PESA Send Money', customer: '0712XXX345', amount: 'KSh 2,500', status: 'Success', agent: 'John Kamau' },
+  { time: '14:05', service: 'Airtime Purchase', customer: '0734XXX678', amount: 'KSh 500', status: 'Success', agent: 'John Kamau' },
+  { time: '14:00', service: 'M-PESA Deposit', customer: '0723XXX901', amount: 'KSh 10,000', status: 'Success', agent: 'John Kamau' },
+  { time: '13:55', service: 'Bill Payment - DSTV', customer: '0746XXX234', amount: 'KSh 3,500', status: 'Failed', agent: 'John Kamau' },
+  { time: '13:50', service: 'SIM Swap', customer: '0721XXX567', amount: '-', status: 'Success', agent: 'John Kamau' },
+]
+
+const agentPerformance = [
+  { id: 'AG001', name: 'John Kamau', location: 'Nairobi CBD', transactions: 486, customers: 234, revenue: 1245000, rating: 4.8, status: 'Active' },
+  { id: 'AG002', name: 'Mary Wanjiku', location: 'Westlands', transactions: 523, customers: 267, revenue: 1456000, rating: 4.9, status: 'Active' },
+  { id: 'AG003', name: 'Peter Omondi', location: 'Kisumu', transactions: 412, customers: 198, revenue: 987000, rating: 4.6, status: 'Active' },
+  { id: 'AG004', name: 'Grace Akinyi', location: 'Mombasa', transactions: 398, customers: 189, revenue: 923000, rating: 4.7, status: 'Active' },
+  { id: 'AG005', name: 'David Kipchoge', location: 'Eldoret', transactions: 367, customers: 176, revenue: 845000, rating: 4.5, status: 'Inactive' },
 ]
 
 function App() {
   const [selectedAgent, setSelectedAgent] = useState('AG001')
   const [timeRange, setTimeRange] = useState('today')
 
-  const agents = [
-    { id: 'AG001', name: 'John Kamau', location: 'Nairobi CBD' },
-    { id: 'AG002', name: 'Mary Wanjiku', location: 'Westlands' },
-    { id: 'AG003', name: 'Peter Omondi', location: 'Kisumu' },
-  ]
+  const currentAgent = agentPerformance.find(a => a.id === selectedAgent)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,7 +62,7 @@ function App() {
                 onChange={(e) => setSelectedAgent(e.target.value)}
                 className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-safaricom-green"
               >
-                {agents.map(agent => (
+                {agentPerformance.map(agent => (
                   <option key={agent.id} value={agent.id}>
                     {agent.name} - {agent.location}
                   </option>
@@ -73,7 +89,7 @@ function App() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Transactions</p>
-                <p className="text-3xl font-bold text-gray-900">486</p>
+                <p className="text-3xl font-bold text-gray-900">{currentAgent?.transactions}</p>
                 <p className="text-sm text-green-600 mt-1">↑ 12% from yesterday</p>
               </div>
               <FiActivity className="text-4xl text-safaricom-green" />
@@ -84,7 +100,7 @@ function App() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Customers Served</p>
-                <p className="text-3xl font-bold text-gray-900">234</p>
+                <p className="text-3xl font-bold text-gray-900">{currentAgent?.customers}</p>
                 <p className="text-sm text-green-600 mt-1">↑ 8% from yesterday</p>
               </div>
               <FiUsers className="text-4xl text-safaricom-green" />
@@ -95,7 +111,7 @@ function App() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Revenue Generated</p>
-                <p className="text-3xl font-bold text-gray-900">KSh 1.2M</p>
+                <p className="text-3xl font-bold text-gray-900">KSh {(currentAgent?.revenue / 1000000).toFixed(1)}M</p>
                 <p className="text-sm text-green-600 mt-1">↑ 15% from yesterday</p>
               </div>
               <FiDollarSign className="text-4xl text-safaricom-green" />
@@ -105,9 +121,9 @@ function App() {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Avg. Service Time</p>
-                <p className="text-3xl font-bold text-gray-900">3.2m</p>
-                <p className="text-sm text-red-600 mt-1">↓ 5% from yesterday</p>
+                <p className="text-sm text-gray-600">Customer Rating</p>
+                <p className="text-3xl font-bold text-gray-900">{currentAgent?.rating}/5</p>
+                <p className="text-sm text-green-600 mt-1">↑ 0.2 from last week</p>
               </div>
               <FiTrendingUp className="text-4xl text-safaricom-green" />
             </div>
@@ -192,41 +208,19 @@ function App() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">14:32</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">M-PESA Deposit</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">0722XXX456</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">KSh 5,000</td>
-                  <td className="px-6 py-4 whitespace-nowrap"><span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Success</span></td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">14:28</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">Airtime Purchase</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">0733XXX789</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">KSh 200</td>
-                  <td className="px-6 py-4 whitespace-nowrap"><span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Success</span></td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">14:25</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">SIM Registration</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">0711XXX234</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">-</td>
-                  <td className="px-6 py-4 whitespace-nowrap"><span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Success</span></td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">14:20</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">M-PESA Withdrawal</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">0745XXX567</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">KSh 3,500</td>
-                  <td className="px-6 py-4 whitespace-nowrap"><span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Success</span></td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">14:15</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">Bill Payment</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">0720XXX890</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">KSh 1,200</td>
-                  <td className="px-6 py-4 whitespace-nowrap"><span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Success</span></td>
-                </tr>
+                {recentTransactions.map((txn, idx) => (
+                  <tr key={idx}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">{txn.time}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">{txn.service}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">{txn.customer}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">{txn.amount}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        txn.status === 'Success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>{txn.status}</span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
