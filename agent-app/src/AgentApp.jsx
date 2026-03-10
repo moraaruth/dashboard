@@ -7,6 +7,7 @@ function AgentApp() {
   const [agentId, setAgentId] = useState('AG001')
   const [isCheckedIn, setIsCheckedIn] = useState(false)
   const [location, setLocation] = useState(null)
+  const [locationError, setLocationError] = useState('')
   const [transactionForm, setTransactionForm] = useState({
     transactionType: 'M-PESA Deposit',
     customerPhone: '',
@@ -21,9 +22,24 @@ function AgentApp() {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           })
+          setLocationError('')
         },
-        (error) => console.error('Location error:', error)
+        (error) => {
+          console.error('Location error:', error)
+          setLocationError('Location blocked. Using mock location.')
+          // Use mock location for testing
+          setLocation({
+            latitude: -1.2921,
+            longitude: 36.8219
+          })
+        }
       )
+    } else {
+      setLocationError('Geolocation not supported. Using mock location.')
+      setLocation({
+        latitude: -1.2921,
+        longitude: 36.8219
+      })
     }
   }, [])
 
@@ -95,13 +111,20 @@ function AgentApp() {
 
         <div className="bg-white p-6 shadow-lg">
           {/* Location Status */}
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg flex items-center gap-3">
-            <FiMapPin className="text-2xl text-blue-600" />
-            <div>
+          <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+            locationError ? 'bg-yellow-50' : 'bg-blue-50'
+          }`}>
+            <FiMapPin className={`text-2xl ${
+              locationError ? 'text-yellow-600' : 'text-blue-600'
+            }`} />
+            <div className="flex-1">
               <p className="font-semibold">Location</p>
               <p className="text-sm text-gray-600">
                 {location ? `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}` : 'Getting location...'}
               </p>
+              {locationError && (
+                <p className="text-xs text-yellow-700 mt-1">{locationError}</p>
+              )}
             </div>
           </div>
 
